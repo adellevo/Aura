@@ -1,4 +1,5 @@
-from flask import Flask, redirect, render_template
+import json, base64, requests
+from flask import Flask, redirect, render_template, request
 from app import app
 import urllib
 from urllib.parse import quote 
@@ -46,4 +47,34 @@ def spotify_auth():
  
 @app.route('/dashboard')
 def aura():
-    return render_template('dashboard.html')
+    auth_token = request.args['code']
+    code_payload = {
+        "grant_type": "authorization_code",
+        "code": str(auth_token),
+        "redirect_uri": REDIRECT_URI
+    }
+    
+    base64encoded = base64.b64encode("{}:{}".format(CLIENT_ID, CLIENT_SECRET).encode())
+    headers = {"Authorization": "Basic {}".format(base64encoded.decode())}
+    post_request = requests.post(SPOTIFY_TOKEN_URL, data=code_payload, headers=headers)
+
+    response_data = json.loads(post_request.text)
+    access_token = response_data["access_token"]
+    refresh_token = response_data["refresh_token"]
+    token_type = response_data["token_type"]
+    expires_in = response_data["expires_in"]
+
+    authorization_header = {"Authorization":"Bearer {}".format(access_token)}
+
+    # Get profile data
+    user_profile_api_endpoint = "{}/me".format(SPOTIFY_API_URL)
+    profile_response = requests.get(user_profile_api_endpoint, headers=authorization_header)
+    profile_data = json.loads(profile_response.text)
+
+    user_id = profile_data['id']
+    username = profile_data['display_name']
+    profile_picture = profile_data['images'][0]['url']
+    profile_url = profile_data['external_urls']['spotify']
+    
+    print(profile_data)
+    return render_template('dashboard.html', profile_url=profile_url)
