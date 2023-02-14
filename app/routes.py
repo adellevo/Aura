@@ -1,23 +1,27 @@
-import os
 from flask import Flask, redirect, render_template
 from app import app
 import urllib
 from urllib.parse import quote 
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 #  Client Keys
 CLIENT_ID = os.environ.get("CLIENT_ID")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
 
 # Spotify URLS
-SPOTIFY_AUTH_URL = os.environ.get("SPOTIFY_AUTH_URL")
-SPOTIFY_TOKEN_URL = os.environ.get("SPOTIFY_TOKEN_URL")
-SPOTIFY_API_BASE_URL = os.environ.get("SPOTIFY_API_BASE_URL")
-API_VERSION = os.environ.get("API_VERSION")
+SPOTIFY_AUTH_URL = "https://accounts.spotify.com/authorize"
+SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
+SPOTIFY_API_BASE_URL = "https://api.spotify.com"
+API_VERSION = "v1"
 SPOTIFY_API_URL = "{}/{}".format(SPOTIFY_API_BASE_URL, API_VERSION)
 
 # Server-side Parameters
-CLIENT_SIDE_URL = os.environ.get("CLIENT_SIDE_URL")
-REDIRECT_URI = os.environ.get("REDIRECT_URI")
+CLIENT_SIDE_URL = "http://localhost:5000/"
+REDIRECT_URI = "http://localhost:5000/dashboard"
 SCOPE = 'user-read-private user-read-playback-state user-modify-playback-state user-library-read'
 STATE = ""
 SHOW_DIALOG_bool = True
